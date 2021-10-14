@@ -1,0 +1,76 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{% set type_name = entry.name -%}
+{% set visibility_attribute = generator_params.visibility_attribute + ' '
+    if generator_params.visibility_attribute and entry.is_root
+    else ''
+-%}
+{% set method_prefix = 'apply' if entry.is_root == 'mutation' else 'get' -%}
+class {{ visibility_attribute }}{{ type_name }} : public object::{{ type_name }}
+{
+    {% if entry.is_list_item %}
+    const std::shared_ptr<implementation::{{ type_name }}::Modifiers> m_Modifiers;
+    {% endif %}
+    {% if entry.local_attributes %}
+    {% for attr_name, attr_type in entry.local_attributes.items() %}
+    const {{ attr_type | cpp_type }} m_{{ attr_name | upper_first_letter }};
+    {% endfor %}
+    {% endif %}
+    {% if entry.is_list_item or entry.local_attributes %}
+
+    {% endif %}
+public:
+    {{ visibility_attribute }}explicit {{ type_name }}(
+    {%- if entry.is_list_item and entry.local_attributes -%}
+    std::shared_ptr<implementation::{{ type_name }}::Modifiers> modifiers
+    {%-     for attr_name, attr_type in entry.local_attributes.items() -%}
+        , {{ attr_type | cpp_type }}&& {{ attr_name }}
+    {%-     endfor -%}
+    )
+        : m_Modifiers(modifiers)
+    {%     for attr_name in entry.local_attributes.keys() %}
+        , m_{{ attr_name | upper_first_letter }}(std::move({{ attr_name }}))
+    {%     endfor %}
+    {
+    }
+    {% elif entry.is_list_item -%}
+    std::shared_ptr<implementation::{{ type_name }}::Modifiers> modifiers)
+        : m_Modifiers(modifiers)
+    {
+    }
+    {% elif entry.local_attributes -%}
+    {%-     for attr_name, attr_type in entry.local_attributes.items() -%}
+    {%          if not loop.first %}, {% endif %}{{ attr_type | cpp_type }}&& {{ attr_name }}
+    {%-     endfor -%}
+    )
+    {%     for attr_name in entry.local_attributes.keys() %}
+    {{'    '}}{%          if loop.first %}:{% else %},{% endif %} m_{{ attr_name | upper_first_letter }}(std::move({{ attr_name }}))
+    {%     endfor %}
+    {
+    }
+    {% else -%}
+    ) = default;
+    {% endif %}
+    {% for f in entry.fields.values() %}
+
+    service::FieldResult<{{ f.type | cpp_type(base_type=True) }}>
+    {{ method_prefix }}{{ f.name | upper_first_letter }}(service::FieldParams&& params
+    {%- for a in f.args.values() -%}
+        , {{ a.type | cpp_type }}&& {{ a.name -}}
+    {%- endfor -%}
+    ) const final;
+    {% endfor %}
+};
+

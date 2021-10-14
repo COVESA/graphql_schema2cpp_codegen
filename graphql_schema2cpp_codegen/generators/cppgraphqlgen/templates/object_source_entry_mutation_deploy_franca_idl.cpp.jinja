@@ -1,0 +1,30 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry_mutation.cpp.jinja #}
+{% from '_macros.cpp.jinja' import franca_get_singleton, implementation_function_signature %}
+{% macro object_source_entry_mutation_deploy(entry, field, arg_field, arg_deploy, value_access) %}
+{%- set implementation_function = arg_deploy.write_implementation_function -%}
+{% if arg_deploy.methods.write %}
+{% if implementation_function %}
+        {{ implementation_function_signature(implementation_function, field.type, arg_field) }}(
+            state,
+            {{ value_access }}
+        );
+{% else %}
+        {{ franca_get_singleton(arg_deploy) }}
+            ->mutateValue({{ value_access }});
+{% endif %}
+{% endif %}
+{%- endmacro %}

@@ -1,0 +1,35 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry_query.cpp.jinja #}
+{% macro object_source_entry_query_deploy(entry, field, deploy) %}
+{% if entry.is_list_item %}
+    {% from 'object_source_entry_query_return_modifier.cpp.jinja' import object_source_entry_query_return_modifier -%}
+    {{ object_source_entry_query_return_modifier(field) }}
+{%- else %}
+{%     if deploy.is_iterable %}
+{%         if deploy.constant is mapping %}
+{%             from 'object_source_entry_query_deploy_constant_mapping.cpp.jinja' import object_source_entry_query_deploy_constant_mapping %}
+                {{- object_source_entry_query_deploy_constant_mapping(entry, field, deploy) -}}
+{%-         else %}
+{%             from 'object_source_entry_query_deploy_constant_list.cpp.jinja' import object_source_entry_query_deploy_constant_list %}
+                {{- object_source_entry_query_deploy_constant_list(field, deploy) -}}
+{%-         endif %}
+{%-     else %}
+{%          from 'object_source_entry_query_deploy_constant_value.cpp.jinja' import object_source_entry_query_deploy_constant_value %}
+            {{ object_source_entry_query_deploy_constant_value(field, deploy) }}
+
+{%-     endif %}
+{%- endif %}
+{%- endmacro %}

@@ -1,0 +1,35 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry_query.cpp.jinja2 #}
+{% macro object_source_entry_query_deploy(entry, field, deploy) %}
+    {% if not field.permissions %}
+    auto state = GraphQLRequestState::fromRequestState(params.state);
+    {% endif %}
+    switch (implementation::{{ entry.name }}::{{ deploy.selector }}(state{% if entry.is_list_item %}, m_Modifiers{% endif %})) {
+        {% for o in deploy.options %}
+        case {{ loop.index - 1 }}:
+            {%  if entry.is_list_item %}
+                {% from 'object_source_entry_query_deploy_dispatcher_return_modifier.cpp.jinja' import object_source_entry_query_deploy_dispatcher_return_modifier -%}
+                {{ object_source_entry_query_deploy_dispatcher_return_modifier(field, o) | indent_spaces(2, blank=True) }}
+            {%- else %}
+                {% from 'object_source_entry_query_deploy_dispatcher_' + o.kind + '.cpp.jinja' import object_source_entry_query_deploy_dispatcher -%}
+                {{ object_source_entry_query_deploy_dispatcher(entry, field, o) | indent_spaces(3, blank=True) }}
+            {%- endif %}
+
+        {% endfor %}
+        default:
+            throw std::invalid_argument("Unsupported deploy type.");
+    }
+{%- endmacro %}

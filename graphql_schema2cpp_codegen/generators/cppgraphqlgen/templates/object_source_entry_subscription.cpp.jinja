@@ -1,0 +1,45 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry.cpp.jinja #}
+{% from '_macros.cpp.jinja' import check_permissions, make_cpp_type %}
+{% macro object_source_entry(entry, field) %}
+{% set subscription_root = field.unwrapped_type.name %}
+service::FieldResult<{{ field.type | cpp_type(base_type=True) }}>
+{{ entry.name }}::get{{ field.name | upper_first_letter }}(
+{%- from 'object_source_entry_field_declare_args.cpp.jinja' import object_source_entry_field_declare_args -%}
+{{- object_source_entry_field_declare_args(field) -}}
+) const
+{
+    auto state = GraphQLRequestState::fromRequestState(params.state);
+    switch (deliveryInterval)
+    {
+        case SubscriptionDeliveryInterval::REALTIME:
+            {{ check_permissions(['Subscription.' + subscription_root + '.REALTIME']) }}
+            state->setSubscriptionmIntervalBetweenDeliveries(std::chrono::milliseconds(0));
+            break;
+
+        case SubscriptionDeliveryInterval::DELIVERY_INTERVAL_1_SECOND:
+            {{ check_permissions(['Subscription.' + subscription_root + '.DELIVERY_INTERVAL_1_SECOND']) }}
+            state->setSubscriptionmIntervalBetweenDeliveries(std::chrono::seconds(1));
+            break;
+
+        case SubscriptionDeliveryInterval::DELIVERY_INTERVAL_5_SECONDS:
+            state->setSubscriptionmIntervalBetweenDeliveries(std::chrono::seconds(5));
+            break;
+    }
+
+    return {{ make_cpp_type(field.type) }};
+}
+{%- endmacro %}

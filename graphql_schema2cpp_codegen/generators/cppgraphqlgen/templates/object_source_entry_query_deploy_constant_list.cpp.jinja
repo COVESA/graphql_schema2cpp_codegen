@@ -1,0 +1,37 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry_query_deploy_constant.cpp.jinja #}
+{%- macro create_list_item(field, item) -%}
+    {%- set item_value -%}
+        std::make_shared<{{ implementation_prefix }}::Modifiers>(
+        {%- if item is iterable -%}
+            {%- for part in item -%}
+                {% if not loop.first %}, {% endif %}{{ part | tojson }}{# we may revisit tojson if we use nested data structures, such as dict #}
+            {%- endfor -%}
+        {%- else -%}
+            {{ item | tojson }}
+        {%- endif -%}
+        )
+    {%- endset -%}
+    {{ make_cpp_type(field.unwrapped_type, item_value) }}
+{%- endmacro %}
+
+{% macro object_source_entry_query_deploy_constant_list(field, deploy) %}
+    return {{ field.type | cpp_type(enable_optional=False, base_type=True) }} {
+        {% for item in deploy.constant.items() %}
+        {{ create_list_item(field, item) }},
+        {% endfor %}
+    };
+{%- endmacro %}

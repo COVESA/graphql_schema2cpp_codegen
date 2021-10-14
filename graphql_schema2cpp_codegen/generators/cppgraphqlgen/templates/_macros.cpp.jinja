@@ -1,0 +1,45 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{% macro check_permissions(permissions) -%}
+    {%- if permissions -%}
+    state->validate(permissions::{{ permissions | join(', permissions::') | replace('.', '_') }});
+    {%- endif -%}
+{%- endmacro %}
+{%- macro franca_get_singleton(franca) -%}
+    state->getSingleton<{{
+                franca | franca_idl_proxy
+            }}__{{
+                franca | franca_idl_attribute
+            }}>()
+{%- endmacro -%}
+{%- macro implementation_function_signature(implementation_function, type, field) -%}
+    {%- set implementation_prefix = 'implementation::' + type.name -%}
+    {{ implementation_prefix }}::{{ implementation_function }}
+        {%- if field.unwrapped_type is vss_object_type -%}
+        {%- set object_type = field.unwrapped_type.name -%}
+        <{{ object_type }}, object::{{ object_type }}>
+        {%- endif -%}
+{%- endmacro -%}
+{%- macro make_cpp_type(t, value = '', enable_optional=False) -%}
+    {%- if t is vss_object_type -%}
+        std::make_shared<{{ t.name }}>({{ value }})
+    {%- elif t is vss_list_type -%}
+        {{ t | cpp_type }} { {{ value }} }
+    {%- elif t is vss_scalar_type and not t.is_custom -%}
+        {{ value }}
+    {%- else -%}
+        {{ t | cpp_type(enable_optional=enable_optional) }}({{ value }})
+    {%- endif -%}
+{%- endmacro -%}

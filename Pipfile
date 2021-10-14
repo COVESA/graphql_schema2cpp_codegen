@@ -1,0 +1,53 @@
+# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG),
+#   Author: Alexander Domin (Alexander.Domin@bmw.de)
+# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA,
+#   Author: Gustavo Barbieri (barbieri@profusion.mobi)
+#   Author: Garbiel Fernandes (g7fernandes@profusion.mobi)
+#   Author: Leandro Ferlin (leandroferlin@profusion.mobi)
+#   Author: Leonardo Ramos (leo.ramos@profusion.mobi)
+#
+# SPDX-License-Identifier: MPL-2.0
+#
+# This Source Code Form is subject to the terms of the
+# Mozilla Public License, v. 2.0. If a copy of the MPL was
+# not distributed with this file, You can obtain one at
+# http://mozilla.org/MPL/2.0/.
+
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pep8 = "*"
+autopep8 = "*"
+flake8-builtins = "*"
+flake8-colors = "*"
+flake8-comprehensions = "*"
+flake8-deprecated = "*"
+flake8-rst-docstrings = "*"
+flake8-requirements = "*"
+flake8-module-name = "*"
+flake8-tidy-imports = "*"
+flake8-print = "*"
+flake8-quotes = "*"
+flake8-eradicate = "*"
+flake8-import-order = "*"
+ipython = "*"
+pylint = "*"
+mypy = "*"
+nose = "*"
+types-pyyaml = "*"
+typing-extensions = "*"
+
+[packages]
+jinja2 = "*"
+graphql-core = "*"
+vss-tools = {git = "https://github.com/COVESA/vss-tools.git", editable = true, ref = "master"}
+graphql_schema2cpp_codegen = {path = "."}
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+test_graphql_schema2cpp_codegen = "graphql_schema2cpp_codegen --graphql=/tmp/schema.graphql --perms=/tmp/permissions.yaml --depl=/tmp/Vehicle.depl cppgraphqlgen --visibility_attribute=VEHICLE_API --header_open=resources/vehicle_hpp_headers_open.hpp /tmp/Vehicle.cpp /tmp/Vehicle.hpp /tmp/permissions_symbols.hpp"

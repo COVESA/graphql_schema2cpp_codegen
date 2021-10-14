@@ -1,0 +1,88 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gustavo Barbieri (barbieri@profusion.mobi) #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{#    Author: Leandro Ferlin (leandroferlin@profusion.mobi) #}
+{#    Author: Leonardo Ramos (leo.ramos@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry.cpp.jinja #}
+{% from '_macros.cpp.jinja' import check_permissions, make_cpp_type %}
+
+{% macro object_source_entry(entry, field) %}
+service::FieldResult<{{ field.type | cpp_type(base_type=True) }}>
+{{ entry.name }}::apply{{ field.name | upper_first_letter }}(
+{%- from 'object_source_entry_field_declare_args.cpp.jinja' import object_source_entry_field_declare_args -%}
+{{- object_source_entry_field_declare_args(field) -}}
+) const
+{
+    auto state = GraphQLRequestState::fromRequestState(params.state);
+
+    {% if field.permissions %}
+    {{ check_permissions(field.permissions) }}
+    {% endif -%}
+    {%- if field.unwrapped_type.is_list_item %}
+    auto modifiers = std::make_shared<implementation::{{ field.unwrapped_type.name }}::Modifiers>(state, input.id);
+
+    {% endif -%}
+
+{% for arg in field.args.values() %}
+    {% for arg_field in arg.unwrapped_type.fields.values() %}
+    {% if not field.unwrapped_type.is_list_item or arg_field.name != 'id' %}
+    {% set value_name = arg.name + '.' + arg_field.name %}
+    if (
+        {%- if arg_field.type is vss_optional_type -%}
+        {%- set value_access = value_name + '.value()' -%}
+        {{ value_name }}.has_value()
+        {%- else -%}
+        {%- set value_access = value_name -%}
+        true
+        {%- endif -%}
+    )
+    {
+        {%- if arg_field.permissions %}
+
+        {{ check_permissions(arg_field.permissions) }}
+        {%- endif %}
+
+        {% if arg_field.range %}
+        {% set value_access -%}
+        validateRange<{{
+            arg_field.unwrapped_type | cpp_type(enable_optional=False, wrapped_custom_scalars=False) }}>({{
+                value_access
+            }}, {
+                {%- if arg_field.unwrapped_type.is_integer -%}
+                {{
+                arg_field.range.min | int }}, {{
+                arg_field.range.max | int
+                }}
+                {%- else -%}
+                {{
+                arg_field.range.min | tojson }}, {{
+                arg_field.range.max | tojson
+                }}
+                {%- endif -%}})
+        {%- endset %}
+        {% endif %}
+        {% if arg_field.deploy %}
+            {% from 'object_source_entry_mutation_deploy_' + arg_field.deploy.kind + '.cpp.jinja' import object_source_entry_mutation_deploy %}
+            {{- object_source_entry_mutation_deploy(entry, field, arg_field, arg_field.deploy, value_access) -}}
+        {% endif %}
+    }
+    {% endif %}
+    {% endfor %}
+{% endfor %}
+
+    {% if field.unwrapped_type.is_list_item %}
+    return {{ make_cpp_type(field.type, 'modifiers') }};
+    {% else %}
+    return {{ make_cpp_type(field.type) }};
+    {% endif %}
+}
+{%- endmacro %}
