@@ -24,8 +24,8 @@ from . import Cardinality
 from .deploy.deploy import deploy_from_entry
 from .deploy.deploy_entry import VehicleDeployEntry
 from .deploy.types.deploy_type import DeployType
+from .deploy.types.deploy_with_method import DeployWithMethod
 from .directives import Directives
-from .franca_idl.deploy_franca_idl import DeployFrancaIDL
 
 
 class VehicleNode(Node):
@@ -100,7 +100,7 @@ class VehicleNode(Node):
     @property
     def has_write_method(self) -> bool:
         # TODO: Check if DeployList?
-        if isinstance(self.deploy_info, DeployFrancaIDL):
+        if isinstance(self.deploy_info, DeployWithMethod):
             return self.deploy_info.has_write_method
         return False
 

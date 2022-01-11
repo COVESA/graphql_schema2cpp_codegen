@@ -15,12 +15,12 @@
 
 from typing import Literal, Tuple, Union
 
-from .deploy_franca_idl_method_read import DeployFrancaIDLMethodRead
-from .deploy_franca_idl_method_subscribe import DeployFrancaIDLMethodSubscribe
-from .deploy_franca_idl_method_write import DeployFrancaIDLMethodWrite
+from ..deploy.deploy_method_read import DeployMethodRead
+from ..deploy.deploy_method_subscribe import DeployMethodSubscribe
+from ..deploy.deploy_method_write import DeployMethodWrite
 
 DeployFrancaIDLMethodsIterationValue = Union[
-    Tuple[Literal['subscribe'], DeployFrancaIDLMethodSubscribe],
-    Tuple[Literal['read'], DeployFrancaIDLMethodRead],
-    Tuple[Literal['write'], DeployFrancaIDLMethodWrite]
+    Tuple[Literal['subscribe'], DeployMethodSubscribe],
+    Tuple[Literal['read'], DeployMethodRead],
+    Tuple[Literal['write'], DeployMethodWrite]
 ]

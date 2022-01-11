@@ -17,8 +17,9 @@ class DeployType:
     kind: str
     name: str
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, **kwargs) -> None:
         self.name = name
+        super().__init__(**kwargs)
 
     def get_include_path(self) -> str:
         include_name = '/'.join(str(self.name).lower().split('_')[:-1])

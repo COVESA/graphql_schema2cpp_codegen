@@ -23,6 +23,8 @@ from graphql.type.scalars import (
 
 from vss_deploy.model.franca_idl.deploy_franca_idl import DeployFrancaIDL
 
+from vss_deploy.model.deploy.types.deploy_custom import DeployCustom
+
 from ...types import (
     VSSGraphQLList,
     VSSGraphQLNonNull,
@@ -54,6 +56,13 @@ def franca_idl_proxy(franca: DeployFrancaIDL) -> str:
         f'{franca.interface}Proxy',
         franca.instance_id
     ))
+
+
+def custom_singleton(custom: DeployCustom) -> str:
+    if custom.shared_attribute:
+        return f'{custom.origin}__{custom.attribute}'
+    else:
+        return custom.origin
 
 
 def get_optional_type(cpp_type: str, is_nullable: bool) -> str:
@@ -137,4 +146,5 @@ all_filters = {
     'franca_idl_proxy': franca_idl_proxy,
     'indent_spaces': indent_spaces,
     'upper_first_letter': upper_first_letter,
+    'custom_singleton': custom_singleton,
 }

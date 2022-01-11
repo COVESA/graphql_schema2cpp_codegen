@@ -1,0 +1,31 @@
+{# Copyright (C) 2021, Bayerische Motoren Werke Aktiengesellschaft (BMW AG) #}
+{#    Author: Alexander Domin (Alexander.Domin@bmw.de) #}
+{# Copyright (C) 2021, ProFUSION Sistemas e Soluções LTDA #}
+{#    Author: Gabriel Fernandes (g7fernandes@profusion.mobi) #}
+{# #}
+{# SPDX-License-Identifier: MPL-2.0 #}
+{# #}
+{# This Source Code Form is subject to the terms of the #}
+{# Mozilla Public License, v. 2.0. If a copy of the MPL was #}
+{# not distributed with this file, You can obtain one at #}
+{# http://mozilla.org/MPL/2.0/. #}
+{# included by object_source_entry_query_deploy_custom.cpp.jinja #}
+{% macro object_source_entry_query_deploy_custom_return_from_singleton(entry, field, deploy) -%}
+{% from '_macros.cpp.jinja' import custom_get_singleton, implementation_function_signature %}
+{% set implementation_function = deploy.read_implementation_function -%}
+{% set implementation_getter = deploy.implementation_getter -%}
+return {{ custom_get_singleton(deploy) }}->getValue<{{
+            field.type | cpp_type(enable_optional=False, base_type=True)
+        }}>(
+        {%- if implementation_function %}
+
+    {{ implementation_function_signature(implementation_function, entry, field) }}{{'\n    '}}
+        {% elif implementation_getter %}
+
+    [](const auto& value) {
+        return {{ make_cpp_type(field.type, 'value.' + implementation_getter + '()') }};
+    }{{'\n    '}}
+        {% endif %}
+);
+
+{%- endmacro %}

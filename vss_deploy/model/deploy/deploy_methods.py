@@ -13,27 +13,27 @@
 # not distributed with this file, You can obtain one at
 # http://mozilla.org/MPL/2.0/.
 
-from typing import Iterator, Optional, cast
+from typing import Iterator, Literal, Optional, Sequence, cast
 
-from .deploy_franca_idl_method_read import DeployFrancaIDLMethodRead
-from .deploy_franca_idl_method_subscribe import DeployFrancaIDLMethodSubscribe
-from .deploy_franca_idl_method_write import DeployFrancaIDLMethodWrite
-from .franca_types import DeployFrancaIDLMethodsIterationValue
+from .deploy_method_read import DeployMethodRead
+from .deploy_method_subscribe import DeployMethodSubscribe
+from .deploy_method_write import DeployMethodWrite
+from ..franca_idl.franca_types import DeployFrancaIDLMethodsIterationValue
 from ..json_types import JSONValue
 
 
-class DeployFrancaIDLMethods:
+class DeployMethods:
     __slots__ = ('subscribe', 'read', 'write')
-    subscribe: Optional[DeployFrancaIDLMethodSubscribe]
-    read: Optional[DeployFrancaIDLMethodRead]
-    write: Optional[DeployFrancaIDLMethodWrite]
+    subscribe: Optional[DeployMethodSubscribe]
+    read: Optional[DeployMethodRead]
+    write: Optional[DeployMethodWrite]
 
     def __init__(self, spec: JSONValue) -> None:
         if not isinstance(spec, dict):
             raise ValueError('FrancaIDL.methods expects a JSON object')
-        self.subscribe = DeployFrancaIDLMethodSubscribe.from_spec(spec)
-        self.read = DeployFrancaIDLMethodRead.from_spec(spec)
-        self.write = DeployFrancaIDLMethodWrite.from_spec(spec)
+        self.subscribe = DeployMethodSubscribe.from_spec(spec)
+        self.read = DeployMethodRead.from_spec(spec)
+        self.write = DeployMethodWrite.from_spec(spec)
 
     def __str__(self) -> str:
         itr = (f'{k}={v}' for k, v in self)
@@ -56,3 +56,7 @@ class DeployFrancaIDLMethods:
     @property
     def has_write(self):
         return self.write is not None
+
+
+DeployFrancaIDLMethodsKeys = Literal['subscribe', 'read', 'write']
+DeployFrancaIDLMethodsFilter = Sequence[DeployFrancaIDLMethodsKeys]

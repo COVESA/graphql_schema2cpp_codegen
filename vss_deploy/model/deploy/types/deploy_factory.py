@@ -20,6 +20,7 @@ from .deploy_dispatcher import DeployDispatcher
 from .deploy_parent_attribute import DeployParentAttribute
 from .deploy_type import DeployType
 from ...franca_idl.deploy_franca_idl import DeployFrancaIDL
+from .deploy_custom import DeployCustom
 from ...json_types import JSONValue
 
 
@@ -29,6 +30,7 @@ deploy_map_factory: Mapping[str, Callable[[JSONValue, str], DeployType]] = {
     '_dispatcher': DeployDispatcher,
     '_francaIDL': DeployFrancaIDL,
     '_parentAttribute': DeployParentAttribute,
+    '_custom': DeployCustom,
 }
 
 deploy_yaml_keys = {
@@ -37,4 +39,5 @@ deploy_yaml_keys = {
     'constants': '_constants',
     'parent_attribute': '_parentAttribute',
     'dispatcher': '_dispatcher',
+    'custom': '_custom',
 }

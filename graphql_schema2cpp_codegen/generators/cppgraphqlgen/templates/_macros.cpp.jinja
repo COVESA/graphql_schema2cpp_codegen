@@ -24,6 +24,11 @@
                 franca | franca_idl_attribute
             }}>()
 {%- endmacro -%}
+{%- macro custom_get_singleton(custom) -%}
+    state->getSingleton<{{
+                custom | custom_singleton
+            }}>()
+{%- endmacro -%}
 {%- macro implementation_function_signature(implementation_function, type, field) -%}
     {%- set implementation_prefix = 'implementation::' + type.name -%}
     {{ implementation_prefix }}::{{ implementation_function }}

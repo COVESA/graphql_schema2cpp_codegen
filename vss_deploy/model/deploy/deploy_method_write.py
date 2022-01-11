@@ -18,7 +18,7 @@ from typing import Optional
 from ..json_types import JSONObject
 
 
-class DeployFrancaIDLMethodWrite:
+class DeployMethodWrite:
     __slots__ = (
         'source_method', 'source_attribute', 'implementation_function',
     )
@@ -55,7 +55,7 @@ class DeployFrancaIDLMethodWrite:
     def from_spec(
         cls,
         spec: JSONObject,
-    ) -> Optional['DeployFrancaIDLMethodWrite']:
+    ) -> Optional['DeployMethodWrite']:
         method = spec.get('write')
         if not method:
             return None

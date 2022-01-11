@@ -18,7 +18,7 @@ from typing import Optional
 from ..json_types import JSONObject
 
 
-class DeployFrancaIDLMethodSubscribe:
+class DeployMethodSubscribe:
     __slots__ = (
         'source_broadcast', 'source_attribute',
         'implementation_function', 'implementation_getter',
@@ -66,7 +66,7 @@ class DeployFrancaIDLMethodSubscribe:
     def from_spec(
         cls,
         spec: JSONObject,
-    ) -> Optional['DeployFrancaIDLMethodSubscribe']:
+    ) -> Optional['DeployMethodSubscribe']:
         method = spec.get('subscribe')
         if not method:
             return None
