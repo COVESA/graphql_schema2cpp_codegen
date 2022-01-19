@@ -103,7 +103,7 @@ VSSGraphQLNamedTypeMap = Mapping[str, 'VSSGraphQLNamedTypes']
 
 
 class VSSGraphQLWrappingType:
-    __slots__ = ('graphql',)
+    __slots__ = ('graphql', 'of_type')
     of_type: VSSGraphQLWrapableTypes
 
     def __init__(self, of_type: VSSGraphQLWrapableTypes) -> None:
@@ -319,7 +319,7 @@ class _ContainerField(Generic[TUnwrapped, TGraphQLFieldType]):
 
 TGraphQLContainerType = TypeVar('TGraphQLContainerType', bound=Union[
     GraphQLObjectType,
-    GraphQLInputType,
+    GraphQLInputObjectType,
 ])
 TContainerFieldType = TypeVar(
     'TContainerFieldType',

@@ -29,7 +29,7 @@ from .types import GenerationParameters
 
 
 class BaseTemplateContext:
-    __slots__ = ('file', 'params')
+    __slots__ = ('file', 'params', 'variables')
     file: TextIO
     params: MutableMapping[str, Any]
     open_template: ClassVar[Optional[Template]] = None

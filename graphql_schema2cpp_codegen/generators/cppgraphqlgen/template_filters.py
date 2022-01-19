@@ -21,9 +21,10 @@ from graphql.type.scalars import (
     GraphQLString,
 )
 
-from vss_deploy.model.franca_idl.deploy_franca_idl import DeployFrancaIDL
 
 from vss_deploy.model.deploy.types.deploy_custom import DeployCustom
+from vss_deploy.model.franca_idl.deploy_franca_idl import DeployFrancaIDL
+
 
 from ...types import (
     VSSGraphQLList,

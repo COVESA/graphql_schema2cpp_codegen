@@ -16,11 +16,11 @@
 from typing import Callable, Mapping
 
 from .deploy_constant import DeployConstant
+from .deploy_custom import DeployCustom
 from .deploy_dispatcher import DeployDispatcher
 from .deploy_parent_attribute import DeployParentAttribute
 from .deploy_type import DeployType
 from ...franca_idl.deploy_franca_idl import DeployFrancaIDL
-from .deploy_custom import DeployCustom
 from ...json_types import JSONValue
 
 
